@@ -18,8 +18,10 @@ polynomial(M-P):- monomial(M),polynomial(-P),!.
 polynomial(-M+P) :- monomial(-M), polynomial(P), !.
 
 %% 2*x^2-3*y^2 -> [2*x^2, -3*y^2] 
-poly2list(-M+P, Res) :- poly2list(-M, Res1), poly2list(P, Res2), append(Res1, Res2, Res).
-poly2list(M-P, Res) :- poly2list(M, Res1), poly2list(-P, Res2), append(Res1, Res2, Res).
-poly2list(M+P, Res) :- poly2list(M, Res1), poly2list(P, Res2), append(Res1, Res2, Res).
 poly2list(-M, [-M]) :- monomial(M), !. 
-poly2list(M, [M]) :- monomial(M), !. 
+poly2list(M, [M]) :- monomial(M), !.
+poly2list(M+P, Res) :- monomial(M), polynomial(P), poly2list(M, Res1), poly2list(P, Res2), append(Res1, Res2, Res), !.
+poly2list(-M+P, Res) :- monomial(M), polynomial(P), poly2list(-M, Res1), poly2list(P, Res2), append(Res1, Res2, Res), !.
+poly2list(M-P, Res) :- monomial(M), polynomial(P), poly2list(M, Res1), poly2list(-P, Res2), append(Res1, Res2, Res), !.
+
+ 
