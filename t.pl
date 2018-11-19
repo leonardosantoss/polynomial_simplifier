@@ -24,7 +24,7 @@ simmon(M, M).
 
 %% decompose a monomial in coefficient and variable-exponent
 
-monparts(X^N, 0, X^N) :- power(X^N), !. %% case with no coefficient
+monparts(X^N, 1, X^N) :- power(X^N), !. %% case with no coefficient
 monparts(K*M, K, M) :- number(K), !. 
 monparts(K, K, novarexp) :- number(K), !. %% case with only number
 monparts(X, 1, X) :- pvar(X), !. %% case with var only
@@ -32,10 +32,9 @@ monparts(X, 1, X) :- pvar(X), !. %% case with var only
 %% deletes the monomial with variable-exponent Exp yielding polynomial P2
 %%DOESNT WORK
 
-delmonomial([M], Exp, M, 0) :- monomial(M), monparts(M,_,Exp).
-delmonomial([M,M2],Exp,M,M2):- monomial(M2),monomial(M),monparts(M,_,Exp),!.
-delmonomial([P|M],Exp,M,P):- monomial(M),monparts(M,_,Exp),!.
-delmonomial([P|M2],Exp,M,P2+M2):- delmonomial(P,Exp,M,P2).
+delmonomial([],Exp,0*Exp,[]).
+delmonomial([M|L], Exp, M2, Lr):- monomial(M), monparts(M,_,Exp), delmonomial(L,Exp,MX,Lr), addmonomial(M,MX,M2).
+delmonomial([M|L], Exp, M2, [M|Lr]):- monomial(M), monparts(M,_,Exp2),not(Exp=Exp2), delmonomial(L,Exp,M2,Lr).
 
 %% creates the monnomial that is the sum of both, K is coefficient, Exp is the variable-exponent
 
@@ -54,7 +53,7 @@ K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 simpoly_list([],[]).
 simpoly_list([P|0], [P]) :- !.	
 simpoly_list([0,M], [M]) :- monomial(M), !.
-simpoly_list([M|P], [M3|P2]) :- monparts(M, _, Exp), delmonomial(P, Exp, M2, P2), !, addmonomial(M, M2, M3).
+simpoly_list([M|P], [M2|PF]) :- monparts(M, _, Exp), delmonomial([M|P], Exp, M2, P2), simpoly_list(P2, PF).
 simpoly_list([M|P], [M1|P1]) :- simpoly_list(P, P1), simmon(M, M1) .
 
 
