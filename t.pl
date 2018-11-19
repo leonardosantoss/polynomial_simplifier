@@ -51,7 +51,7 @@ K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 
 %%simplification of polynomes in expression format
 
-simpoly(P, Res) :- polynomial(P), poly2list(P, L), simpoly_list(L, Res).
+simpoly(P, ResList) :- polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list(Res, ResList).
 
 %% simplification of polynomes in list format
 simpoly_list([],[]).
@@ -61,9 +61,20 @@ simpoly_list([M|P], [M2|PF]) :- monparts(M, _, Exp), delmonomial([M|P], Exp, M2,
 simpoly_list([M|P], [M1|P1]) :- simpoly_list(P, P1), simmon(M, M1) .
 
 
-poly2list(P+M, [M|T]):-monomial(M), poly2list(P, T), polynomial(P),!.
-poly2list(P-M, [-M|T]):-monomial(M), poly2list(P, T),  polynomial(P),!.
-% poly2list(P-M, [P|T]):-monomial(P), polynomial(M),! , poly2list(M, T).
+poly2list(P - M, [Neg*Exp|T]):-monomial(M), poly2list(P, T),  polynomial(P),monparts(M, C, Exp), Neg is C*(-1),!.
+poly2list(P + M, [M|T]):-monomial(M), poly2list(P, T), polynomial(P),!.
+poly2list(-M, [Neg*Exp]):-monomial(M),monparts(M, C, Exp), Neg is C*(-1),!.
 poly2list(M, [M]):-monomial(M),!.
-poly2list(-M, [-M]):-monomial(M),!.
-% poly2list(-P, [-P]):-monomial(P),!.
+
+
+poly2list2([], 0).
+poly2list2([M|T], M+R):-poly2list2(T, R).
+
+to_list(L, R):-poly2list2(L, A), format(chars(R), "~w", A).
+
+% correct([A1|T], [A1|Res]):-A1==')', correct([A2,A3|T], Res).
+% correct([], []).
+% correct([X|T], [Res]):-X=='(',correct(T, Res).
+% correct([X|T], [X|Res]):-correct(T, Res).
+% correct([A1,A2,A3|T], [-|Res]):-A1=='+',A2=='(',A3=='-', correct(T, Res).
+correct(L, R):-delete(L, '(', S), delete(S, ')', R).
