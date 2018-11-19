@@ -30,7 +30,6 @@ monparts(K, K, novarexp) :- number(K), !. %% case with only number
 monparts(X, 1, X) :- pvar(X), !. %% case with var only
 
 %% deletes the monomial with variable-exponent Exp yielding polynomial P2
-%%DOESNT WORK
 
 delmonomial([],Exp,0*Exp,[]).
 delmonomial([M|L], Exp, M2, Lr):- monomial(M), monparts(M,_,Exp), delmonomial(L,Exp,MX,Lr), addmonomial(M,MX,M2).
@@ -49,7 +48,12 @@ K3 is K1+K2.
 addmonomial(M1,M2,Res):- monparts(M1,K1,Exp), monparts(M2,K2,Exp),		%% two monnomials
 K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 
-%% simplification os polynomes in list format
+
+%%simplification of polynomes in expression format
+
+simpoly(P, Res) :- polynomial(P), poly2list(P, L), simpoly_list(L, Res).
+
+%% simplification of polynomes in list format
 simpoly_list([],[]).
 simpoly_list([P|0], [P]) :- !.	
 simpoly_list([0,M], [M]) :- monomial(M), !.
