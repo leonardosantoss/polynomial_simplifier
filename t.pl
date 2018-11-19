@@ -51,7 +51,7 @@ K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 
 %%simplification of polynomes in expression format
 
-simpoly(P, ResList) :- polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list(Res, ResList).
+simpoly(P, Res) :- polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list2(Res, ResList).
 
 %% simplification of polynomes in list format
 simpoly_list([],[]).
@@ -60,21 +60,54 @@ simpoly_list([0,M], [M]) :- monomial(M), !.
 simpoly_list([M|P], [M2|PF]) :- monparts(M, _, Exp), delmonomial([M|P], Exp, M2, P2), simpoly_list(P2, PF).
 simpoly_list([M|P], [M1|P1]) :- simpoly_list(P, P1), simmon(M, M1) .
 
+%% poly2list(Polynomial, X) calls poly2list1
+%% poly2list(X, [list of monomials]) calls poly2list2
+poly2list(P, L) :- var(P), poly2list2(P,L) , !.
+poly2list(P,L) :- poly2list1(P,L).
 
-poly2list(P - M, [Neg*Exp|T]):-monomial(M), poly2list(P, T),  polynomial(P),monparts(M, C, Exp), Neg is C*(-1),!.
-poly2list(P + M, [M|T]):-monomial(M), poly2list(P, T), polynomial(P),!.
-poly2list(-M, [Neg*Exp]):-monomial(M),monparts(M, C, Exp), Neg is C*(-1),!.
-poly2list(M, [M]):-monomial(M),!.
+%% Normal case poly2list1 where we receive a polynome in expression format and transforms it into a list of monomials
+poly2list1(P - M, [Neg*Exp|T]):-monomial(M), polynomial(P),monparts(M, C, Exp), Neg is C*(-1), poly2list(P, T),!.
+poly2list1(P + M, [M|T]):-monomial(M), poly2list(P, T), polynomial(P),!.
+poly2list1(-M, [Neg*Exp]):-monomial(M),monparts(M, C, Exp), Neg is C*(-1),!.
+poly2list1(M, [M]):-monomial(M),!.
 
 
-poly2list2([], 0).
-poly2list2([M|T], M+R):-poly2list2(T, R).
+%% Case poly2list where we transform a list of monomials into a polynome in expression format
+poly2list2(X, List):- poly2list1(Res, List), correct(Res, X).
 
-to_list(L, R):-poly2list2(L, A), format(chars(R), "~w", A).
 
-% correct([A1|T], [A1|Res]):-A1==')', correct([A2,A3|T], Res).
-% correct([], []).
-% correct([X|T], [Res]):-X=='(',correct(T, Res).
-% correct([X|T], [X|Res]):-correct(T, Res).
-% correct([A1,A2,A3|T], [-|Res]):-A1=='+',A2=='(',A3=='-', correct(T, Res).
-correct(L, R):-delete(L, '(', S), delete(S, ')', R).
+%% Predicate that treats polynomes like 2*x^5+ -2*x^4  that are returned by calling poly2list(X, [2*x^5,-2*x^4])                   		   
+correct(P, Res) :- 
+compound2atom(P, P2),  %%  2x^5+ -2*x^4  -> '2*x^5+ -2*x^4' 
+atom_string(P2, RX),   %% '2*x^5+ -2*x^4' -> "2*x^5+ -2*x^4" 
+string_chars(RX, RXC), 	%% "2*x^5+ -2*x^4" -> [2,*,x,^,5,+, ,-,2,*,x,^,4]
+deleteWrong(RXC, RXT), 	%% delete occurences of [+, ,-] (only supposed to have the -, not the + -)
+flatten(RXT, RXS), 		%% deleteWrong gives a list with various sublists, need to be flattened into one list
+string_chars(RXH, RXS), %% [2,*,x,^,5,-,2,*,x,^,4] -> "2*x^5-2*x^4"
+term_string(Res, RXH).	%% "2*x^5-2*x^4" -> 2*x^5-2*x^4
+
+
+deleteWrong([A1,A2|List], [Res]) :- A1 = '+', A2 = ' ', deleteWrong(List, Res), !.
+deleteWrong([A1,A2|List], [A1|Res]) :- deleteWrong([A2|List],Res),!.
+deleteWrong([A1],[A1]).
+
+compound2atom(X, A) :- format(atom(A), '~w', X).
+
+%% flattens a list that contains sublists
+flatten([], []) :- !.
+flatten([L|Ls], FlatL) :-
+    !,
+    flatten(L, NewL),
+    flatten(Ls, NewLs),
+    append(NewL, NewLs, FlatL).
+flatten(L, [L]).
+
+
+
+
+
+
+
+
+
+
