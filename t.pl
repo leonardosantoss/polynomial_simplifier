@@ -1,3 +1,5 @@
+%% Made by Leonardo Santos (201703489) and Lucas de Paula ()
+
 pvars([x,y,z]).
 pvar(X):-pvars(V),member(X,V).
 
@@ -108,4 +110,20 @@ flatten(L, [L]).
 
 % addpoly(X,Y,R3):-poly2list(X,L1),poly2list(Y,L2),append(L1,L2,T),poly2list(T2, T),simpoly(T2,R),poly2list(R,R1),delete(R1,0,R2),poly2list(R3,R2).
 addpoly(X,Y,R3):-poly2list(X,L1),poly2list(Y,L2),append(L1,L2,T),simpoly_list(T,R1),delete(R1,0,R2),poly2list(R3,R2).
+
+%% Multiplies a polynome in expression format by a Scalar 
+scalepoly(P, S, Res) :-poly2list(P, L), aux_scalepoly(L,S,Res1), poly2list(Res2, Res1), simpoly(Res2, Res).
+
+aux_scalepoly([], _, []).
+aux_scalepoly(List,1, List).
+aux_scalepoly([K*X|List], S, [Y*X|Res]) :- number(K), power(X), Y is K*S, aux_scalepoly(List, S, Res). 
+aux_scalepoly([X|List], S, [Y*X|Res]) :- power(X), Y is S, aux_scalepoly(List, S, Res).
+
+
+
+
+
+
+
+
 
