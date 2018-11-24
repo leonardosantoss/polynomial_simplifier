@@ -3,6 +3,7 @@
 pvars([x,y,z]).
 pvar(X):-pvars(V),member(X,V).
 
+power(novarexp).
 power(X):-pvar(X),!.
 power(X^Y):-pvar(X),integer(Y),Y>1,!.
 power(-X^Y):-pvar(X),integer(Y),Y>1,!.
@@ -118,6 +119,7 @@ aux_scalepoly([], _, []).
 aux_scalepoly(List,1, List).
 aux_scalepoly([K*X|List], S, [Y*X|Res]) :- number(K), power(X), Y is K*S, aux_scalepoly(List, S, Res). 
 aux_scalepoly([X|List], S, [Y*X|Res]) :- power(X), Y is S, aux_scalepoly(List, S, Res).
+aux_scalepoly([K|List], S, [Y|Res]) :- number(K), Y is K*S, aux_scalepoly(List, S, Res).
 
 
 
