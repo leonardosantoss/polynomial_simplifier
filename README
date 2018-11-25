@@ -1,0 +1,66 @@
+Read me for the prolog class first assignment
+Done by Leonardo Santos (201703489) and Lucas de Paula ()
+
+The file that contains all the predicates is called sim.pl
+
+The code can be run using swipl, and compiled with the command ["sim.pl"].
+
+Poynomial simplifier:
+All the predicates asked in the assignment were implemented, and here follow a few usage examples of them.
+
+1.  poly2list/2 that transforms a list representing a polynomial (second
+argument) into a polynomial represented as an expression (first argument)
+and vice-versa.
+    Queries: 
+        ?- poly2list(2*x^2+x-3*x^5+y, X).
+        X = [y, -3*x^5, x, 2*x^2].
+
+        ?- poly2list(X, [2*x^2,x,-3*x^5,y]).
+        X = y-3*x^5+x+2*x^2.
+
+2.  simpoly_list/2 that simplifies a polynomial represented as a list into
+another polynomial as a list.
+    Queries:
+        ?- simpoly_list([3*x^2,-2*x^2,7*y,-8], X).
+        X = [x^2, 7*y, -8].
+
+
+3. simpoly/2 that simplifies a polynomial represented as an expression
+as another polynomial as an expression. This predicate can use the
+previous one.
+    Queries:
+        ?- simpoly(3*x^2-2*x^2+7*y-8, X).
+        X = x^2+7*y-8.
+
+        ?- simpoly(x+8+2*x-9, X).
+        X = 3*x-1.
+
+4. scalepoly/3 that multiplies one polynomial as expression by a scalar
+resulting in a seconed polynomial. The two first arguments are assumed
+to be ground. The polynomial resulting from the sum is in
+simplified form.  
+    Queries:
+        ?- scalepoly(2*x^2+x-3*x^5+y, 3, X).
+        X = 6*x^2+3*x-9*x^5+3*y .      
+
+        ?- scalepoly(2*x^2+x-3*x^5+y, -3, X).
+        X = -6*x^2-3*x+9*x^5-3*y .
+
+5.   addpoly/3 that adds two polynomials as expressions resulting in a
+third one. The two first arguments are assumed to be ground. The
+polynomial resulting from the sum is in simplified form.
+    Queries:
+        ?- addpoly(2*x^2+3*y^5+3*y^2, 2*x^2+2*y^2, X).
+        X = 4*x^2+3*y^5+5*y^2 .
+
+        ?- addpoly(2*x^2+3*y^5+3*y^2+4, 7, X).
+        X = 2*x^2+3*y^5+3*y^2+11 .
+
+
+
+
+
+
+
+
+
