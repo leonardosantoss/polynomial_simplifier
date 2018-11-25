@@ -43,20 +43,20 @@ simpoly(P, Res) :-polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly
 
 simpoly_list(L1, L2):-simlist(L1,L),findall(X,custom_filter(X,L),L2).
 
-%% 
+%% get the next element and use getrem to sum the coefs of all elements with the same core, returns a list with a set of cores multiplied by the sum of coefs
 simlist([H|L], [Sum|L2]):-number(H),!,monparts(H,Coef1,_),getrem(H, L, S, PS), Sum is Coef1 + S, simlist(PS,L2).
 simlist([H|L], [A|L2]):-monparts(H,Coef1,Exp),!,getrem(H, L, S, PS), Sum is Coef1 + S,monparts(A,Sum,Exp), simlist(PS,L2).
 simlist([H|L], [H|PS]):-simlist(L,PS),!.
 simlist([], []):-!.
 
-%% 
+%% delete the first occurrence of a element in the list
 deleteFirst([X|L],X,L):-!.
 deleteFirst([H|T],X,[H|L]):-deleteFirst(T,X,L).
 
-%%
+%% get all elements whose coef is different from 0
 custom_filter(X,L):-member(X,L),not(monparts(X,0,_)).
 
-%%
+%% recursively adds the coef of the next element with the same core as H and deletes it
 getrem(H, L, Sum, Lf):-monparts(H,_,Exp),member(X,L),monparts(X,Coef2,Exp),deleteFirst(L,X,L2),getrem(H, L2, S, Lf),Sum is Coef2 + S,!.
 getrem(_,L,0,L):-!.
 
