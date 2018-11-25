@@ -28,6 +28,7 @@ simmon(M, M).
 %% decompose a monomial in coefficient and variable-exponent
 
 monparts(X^N, 1, X^N) :- power(X^N), !. %% case with no coefficient
+monparts(-X, -1, X) :- pvar(X), !.
 monparts(K*M, K, M) :- number(K), !. 
 monparts(K, K, novarexp) :- number(K), !. %% case with only number
 monparts(X, 1, X) :- pvar(X), !. %% case with var only
