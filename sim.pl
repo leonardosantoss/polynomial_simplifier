@@ -33,38 +33,33 @@ monparts(K*M, K, M) :- number(K), !.
 monparts(K, K, novarexp) :- number(K), !. %% case with only number
 monparts(X, 1, X) :- pvar(X), !. %% case with var only
 
-%% deletes the monomial with variable-exponent Exp yielding polynomial P2
-
-delmonomial([],Exp,0*Exp,[]).
-delmonomial([M|L], Exp, M2, Lr):- monomial(M), monparts(M,_,Exp), delmonomial(L,Exp,MX,Lr), addmonomial(M,MX,M2).
-delmonomial([M|L], Exp, M2, [M|Lr]):- monomial(M), monparts(M,_,Exp2),not(Exp=Exp2), delmonomial(L,Exp,M2,Lr).
-
-%% creates the monnomial that is the sum of both, K is coefficient, Exp is the variable-exponent
-
-aux_addmonomial(K,novarexp,K):-!.
-aux_addmonomial(0,_,0):-!.
-aux_addmonomial(1,Exp,Exp):-!.
-aux_addmonomial(K,Exp,K*Exp).  
-
-%% adds two monnomials together (returns false if not able to sum)
-addmonomial(K1,K2,K3):- number(K1),number(K2),!,						%%only coefficients
-K3 is K1+K2.
-addmonomial(M1,M2,Res):- monparts(M1,K1,Exp), monparts(M2,K2,Exp),		%% two monnomials
-K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
-
-
 %%simplification of polynomes in expression format
+%% if an expression equals 0, the predicate returns false
 
 simpoly(P, Res) :-polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list2(Res, ResList),!.
 
 %% simplification of polynomes in list format
+%% if a polynomial equals 0, an empty list is returned
 
 simpoly_list(L1, L2):-simlist(L1,L),findall(X,custom_filter(X,L),L2).
 
+%% 
 simlist([H|L], [Sum|L2]):-number(H),!,monparts(H,Coef1,_),getrem(H, L, S, PS), Sum is Coef1 + S, simlist(PS,L2).
 simlist([H|L], [A|L2]):-monparts(H,Coef1,Exp),!,getrem(H, L, S, PS), Sum is Coef1 + S,monparts(A,Sum,Exp), simlist(PS,L2).
 simlist([H|L], [H|PS]):-simlist(L,PS),!.
 simlist([], []):-!.
+
+%% 
+deleteFirst([X|L],X,L):-!.
+deleteFirst([H|T],X,[H|L]):-deleteFirst(T,X,L).
+
+%%
+custom_filter(X,L):-member(X,L),not(monparts(X,0,_)).
+
+%%
+getrem(H, L, Sum, Lf):-monparts(H,_,Exp),member(X,L),monparts(X,Coef2,Exp),deleteFirst(L,X,L2),getrem(H, L2, S, Lf),Sum is Coef2 + S,!.
+getrem(_,L,0,L):-!.
+
 
 %% poly2list(Polynomial, X) calls poly2list1
 %% poly2list(X, [list of monomials]) calls poly2list2
@@ -112,8 +107,9 @@ flatten(L, [L]).
 
 
 
-% addpoly(X,Y,R3):-poly2list(X,L1),poly2list(Y,L2),append(L1,L2,T),poly2list(T2, T),simpoly(T2,R),poly2list(R,R1),delete(R1,0,R2),poly2list(R3,R2).
+%% adds two monnomials
 addpoly(X,Y,R3):-poly2list(X,L1),poly2list(Y,L2),append(L1,L2,T),simpoly_list(T,R1),delete(R1,0,R2),poly2list(R3,R2).
+%% addpoly(X,Y,R3):-poly2list(X,L1),poly2list(Y,L2),append(L1,L2,T),poly2list(T2, T),simpoly(T2,R),poly2list(R,R1),delete(R1,0,R2),poly2list(R3,R2).
 
 %% Multiplies a polynome in expression format by a Scalar 
 scalepoly(P, S, Res) :-poly2list(P, L), aux_scalepoly(L,S,Res1), poly2list(Res2, Res1), simpoly(Res2, Res).
@@ -126,18 +122,29 @@ aux_scalepoly([K|List], S, [Y|Res]) :- number(K), Y is K*S, aux_scalepoly(List, 
 
 
 
-%% aux predicates
-deleteFirst([X|L],X,L):-!.
-deleteFirst([H|T],X,[H|L]):-deleteFirst(T,X,L).
+/*
 
-custom_filter(X,L):-member(X,L),not(monparts(X,0,_)).
+%% deletes the monomial with variable-exponent Exp yielding polynomial P2
 
-getrem(H, L, Sum, Lf):-monparts(H,_,Exp),member(X,L),monparts(X,Coef2,Exp),deleteFirst(L,X,L2),getrem(H, L2, S, Lf),Sum is Coef2 + S,!.
-getrem(_,L,0,L):-!.
+delmonomial([],Exp,0*Exp,[]).
+delmonomial([M|L], Exp, M2, Lr):- monomial(M), monparts(M,_,Exp), delmonomial(L,Exp,MX,Lr), addmonomial(M,MX,M2).
+delmonomial([M|L], Exp, M2, [M|Lr]):- monomial(M), monparts(M,_,Exp2),not(Exp=Exp2), delmonomial(L,Exp,M2,Lr).
+
+%% creates the monnomial that is the sum of both, K is coefficient, Exp is the variable-exponent
+
+aux_addmonomial(K,novarexp,K):-!.
+aux_addmonomial(0,_,0):-!.
+aux_addmonomial(1,Exp,Exp):-!.
+aux_addmonomial(K,Exp,K*Exp).  
+
+%% adds two monnomials together (returns false if not able to sum)
+addmonomial(K1,K2,K3):- number(K1),number(K2),!,						%%only coefficients
+K3 is K1+K2.
+addmonomial(M1,M2,Res):- monparts(M1,K1,Exp), monparts(M2,K2,Exp),		%% two monnomials
+K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 
 
-
-
+*/
 
 
 
