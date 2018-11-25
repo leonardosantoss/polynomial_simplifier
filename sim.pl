@@ -1,4 +1,4 @@
-%% Made by Leonardo Santos (201703489) and Lucas de Paula ()
+%% Made by Leonardo Santos (201703489) and Lucas de Paula (201608440)
 
 pvars([x,y,z]).
 pvar(X):-pvars(V),member(X,V).
