@@ -58,11 +58,13 @@ K3 is K1+K2, aux_addmonomial(K3,Exp,Res).
 simpoly(P, Res) :-polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list2(Res, ResList),!.
 
 %% simplification of polynomes in list format
-simpoly_list([],[]).
-simpoly_list([P|0], [P]) :- !.	
-simpoly_list([0,M], [M]) :- monomial(M), !.
-simpoly_list([M|P], [M2|PF]) :- monparts(M, _, Exp), delmonomial([M|P], Exp, M2, P2), simpoly_list(P2, PF).
-simpoly_list([M|P], [M1|P1]) :- simpoly_list(P, P1), simmon(M, M1) .
+
+simpoly_list(L1, L2):-simlist(L1,L),findall(X,custom_filter(X,L),L2).
+
+simlist([H|L], [Sum|L2]):-number(H),!,monparts(H,Coef1,_),getrem(H, L, S, PS), Sum is Coef1 + S, simlist(PS,L2).
+simlist([H|L], [A|L2]):-monparts(H,Coef1,Exp),!,getrem(H, L, S, PS), Sum is Coef1 + S,monparts(A,Sum,Exp), simlist(PS,L2).
+simlist([H|L], [H|PS]):-simlist(L,PS),!.
+simlist([], []):-!.
 
 %% poly2list(Polynomial, X) calls poly2list1
 %% poly2list(X, [list of monomials]) calls poly2list2
@@ -121,6 +123,17 @@ aux_scalepoly(List,1, List).
 aux_scalepoly([K*X|List], S, [Y*X|Res]) :- number(K), power(X), Y is K*S, aux_scalepoly(List, S, Res). 
 aux_scalepoly([X|List], S, [Y*X|Res]) :- power(X), Y is S, aux_scalepoly(List, S, Res).
 aux_scalepoly([K|List], S, [Y|Res]) :- number(K), Y is K*S, aux_scalepoly(List, S, Res).
+
+
+
+%% aux predicates
+deleteFirst([X|L],X,L):-!.
+deleteFirst([H|T],X,[H|L]):-deleteFirst(T,X,L).
+
+custom_filter(X,L):-member(X,L),not(monparts(X,0,_)).
+
+getrem(H, L, Sum, Lf):-monparts(H,_,Exp),member(X,L),monparts(X,Coef2,Exp),deleteFirst(L,X,L2),getrem(H, L2, S, Lf),Sum is Coef2 + S,!.
+getrem(_,L,0,L):-!.
 
 
 
