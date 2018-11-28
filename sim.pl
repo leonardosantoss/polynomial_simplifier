@@ -5,8 +5,9 @@ pvar(X):-pvars(V),member(X,V).
 
 power(novarexp).
 power(X):-pvar(X),!.
-power(X^Y):-pvar(X),integer(Y),Y>1,!.
-power(-X^Y):-pvar(X),integer(Y),Y>1,!.
+power(X^Y):-pvar(X),integer(Y),Y>=0,!.
+power(-X^Y):-pvar(X),integer(Y),Y>=0,!.
+
 coefficient(K):-number(K).
 
 monomial(X):-pvar(X),!.
@@ -34,12 +35,10 @@ monparts(K, K, novarexp) :- number(K), !. %% case with only number
 monparts(X, 1, X) :- pvar(X), !. %% case with var only
 
 %%simplification of polynomes in expression format
-%% if an expression equals 0, the predicate returns false
 
-simpoly(P, Res) :-polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list2(Res, ResList),!.
+simpoly(P, Res) :-polynomial(P), poly2list(P, L), simpoly_list(L, ResList), poly2list(Res, ResList),!.
 
 %% simplification of polynomes in list format
-%% if a polynomial equals 0, an empty list is returned
 
 simpoly_list(L1, L2):-simlist(L1,L),findall(X,custom_filter(X,L),L2).
 
