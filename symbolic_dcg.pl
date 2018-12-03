@@ -37,12 +37,16 @@ pvar(z)-->[z].
 
 times-->[times].
 raised-->[raised,to].
+squared-->[squared].
+cubed --> [cubed].
 
 power(N)-->digits(N).
 
 coef(N)-->digits(N).
 
 exp(P^PO)-->pvar(P),raised,power(PO).
+exp(P^2) -->pvar(P), squared.
+exp(P^3)-->pvar(P), cubed.
 exp(P)-->pvar(P).
 
 monomial(N)-->coef(N).
@@ -50,7 +54,9 @@ monomial(N)-->exp(N).
 monomial(C*E)-->coef(C),times,exp(E).
 
 minus-->[minus].
+minus-->['-'].
 plus-->[plus].
+plus-->['+'].
 
 polynomial(P)-->monomial(P).
 polynomial(M+P)-->monomial(M),plus,polynomial(P).
