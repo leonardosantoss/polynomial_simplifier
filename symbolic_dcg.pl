@@ -68,12 +68,14 @@ aux_text2poly([H|T], [X|T1]):-atom_string(X,H),aux_text2poly(T, T1).
 polyplay() :- writeln("Write your operation over a polynomial: ('help' to display instructions)"),writeln("Every query must end with a space and '.'"),read_string(user_input, "\n", "\r", End, String), 
 split_string(String, " ", "", List), aux_text2poly(List, R1), verify(Res,R1,[]).
 
-%% [add, two, times, x, with, three, times, x, raised, to, four]
-verify(_) --> add_word, polynomial(R2), with_word, polynomial(R1),dot,aux_add(R1, R2).
+%% verify user input and does the correct operation
+verify(_) --> add_word, polynomial(R2), with_word, polynomial(R1),dot ,aux_add(R1, R2).
 verify(_) --> bye_word, dot,leave().
 verify(_) --> help_word, dot,help().
 verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),dot ,aux_mul(R2, R1).
 verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1), dot,aux_mul(R1, R2).
+verify(_) --> simplify_word, polynomial(R1), dot, aux_simp(R1).
+verify(_) --> show_word, polynomial(R1), dot ,aux_show(R1).
 
 
 add_word --> [add].
@@ -81,17 +83,30 @@ with_word --> [with].
 bye_word --> [bye].
 help_word --> [help].
 multiply_word --> [multiply]. 
+simplify_word --> [simplify].
+show_word --> [show].
 by_word --> [by].
 dot --> [.].
 %% Sums two polynomials, prints the result and calls polyplay again, so the program can continue
-aux_add(R1,R2,_,_) :- addpoly(R1,R2, R3), writeln(R3), polyplay().
+aux_add(R1,R2,_,_) :- write(">"),correct_parentesis(R1, Res1), correct_parentesis(R2, Res2),addpoly(Res1,Res2,R3), writeln(R3), writeln(" ") ,polyplay().
 %% Multiplies a polynomial by a Scalar
-aux_mul(R1,R2,_,_) :- scalepoly(R1, R2, Res), writeln(Res), polyplay().
+aux_mul(R1,R2,_,_) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" "), polyplay().
+%% simplifies given expression and calls polyplay again
+aux_simp(R1,_,_) :- write(">"),correct_parentesis(R1, Res1),simpoly(Res1, Res), writeln(Res), writeln(" ") ,polyplay().
+%% shows given polynomial
+aux_show(R1,_,_) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), writeln(" "), polyplay().
 %% leaves the program
 leave([],[]) :- writeln("Bye!").
+
 %% display a few instructions and calls polyplay again
-help([], []) :- writeln("Available commands (with examples):"),  writeln("add two times x with three ."),
-writeln("multiply two times x with three ."), writeln("bye ."), polyplay().
+help([], []) :- writeln("Available commands (with examples):"),  writeln("add: 'add two times x with three .'"),
+writeln("multiply: 'multiply two times x with three .'"), 
+writeln("simplify: 'simplify two times x squared plus two times x squared .'"),
+writeln("show: 'show two times x squared .'"),writeln("bye: 'bye .'"), writeln(" ") ,polyplay().
+
+
+correct_parentesis(R, Term) :- format(chars(C), "~w", R), custom_format(C, Res), term_string(Term, Res).
+custom_format(E,Ef):- delete(E,'(',E1),delete(E1,')',E2),delete(E2,' ',Ef).
 
 %%%%%%%%%%%% PREVIOUS ASSIGNMENT %%%%%%%%%%%%%%%%
 
@@ -214,6 +229,9 @@ aux_scalepoly(List,1, List).
 aux_scalepoly([K*X|List], S, [Y*X|Res]) :- number(K), power(X), Y is K*S, aux_scalepoly(List, S, Res). 
 aux_scalepoly([X|List], S, [Y*X|Res]) :- power(X), Y is S, aux_scalepoly(List, S, Res).
 aux_scalepoly([K|List], S, [Y|Res]) :- number(K), Y is K*S, aux_scalepoly(List, S, Res).
+
+
+
 
 
 
