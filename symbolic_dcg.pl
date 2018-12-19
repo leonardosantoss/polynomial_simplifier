@@ -65,25 +65,31 @@ aux_text2poly([], []).
 aux_text2poly([H|T], [X|T1]):-atom_string(X,H),aux_text2poly(T, T1).
 
 
-polyplay:- writeln("Write your operation over a polynomial: ('help' to display instructions)"),writeln("Every query must end with a space and '.'"),aux_polyplay.
-aux_polyplay:-read_string(user_input, "\n", "\r", End, String), 
-split_string(String, " ", "", List), aux_text2poly(List, R1), verify(Res,R1,[]),aux_polyplay().
+polyplay:- writeln("Write your operation over a polynomial: ('help' to display instructions)"),writeln("Every query must end with a space and '.'"),aux_polyplay(_,_).
+aux_polyplay(_,_):-read_string(user_input, "\n", "\r", End, String), 
+split_string(String, " ", "", List), aux_text2poly(List, R1), verify(Res,R1,[]).
 
 %% verify user input and does the correct operation
-verify(_) --> add_word, polynomial(R2), with_word, polynomial(R1),dot ,aux_add(R1, R2).
-verify(_) --> add_word, name(R2), with_word, name(R1),dot,storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2).
+verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),dot ,aux_add(R1, R2),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, name(R1),dot,storedPoly(R1,P1),aux_add(P1, R2),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, polynomial(R1),dot,storedPoly(R2,P2),aux_add(R1, P2),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, name(R1),dot,storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2),aux_polyplay.
 verify(_) --> bye_word, dot,leave().
-verify(_) --> help_word, dot,help().
-verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),dot ,aux_mul(R2, R1).
-verify(_) --> multiply_word, name(R2), by_word, digits(R1),dot,storedPoly(R2,P2),aux_mul(P2, R1).
-verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1), dot,aux_mul(R1, R2).
-verify(_) --> multiply_word, digits(R2), by_word, name(R1),dot, storedPoly(R1,P1),aux_mul(P1, R2).
-verify(_) --> simplify_word, polynomial(R1), dot, aux_simp(R1).
-verify(_) --> simplify_word, name(R1),dot, storedPoly(R1,P1), aux_simp(P1).
-verify(_) --> show_word, polynomial(R1), dot ,aux_show(R1).
-verify(_) --> show_word, name(R1), dot,storedPoly(R1,P1) ,aux_show(P1).
-verify(_) --> let_word,name(Key),be_word,polynomial(P1), dot,poly2store(Key, P1).
-verify(_) --> forget_word,name(Key), dot, poly2remove(Key).
+verify(_) --> help_word, dot,help(),aux_polyplay.
+verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),dot ,aux_mul(R2, R1),aux_polyplay.
+verify(_) --> multiply_word, name(R2), by_word, digits(R1),dot,storedPoly(R2,P2),aux_mul(P2, R1),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1), dot,aux_mul(R1, R2),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, name(R1),dot, storedPoly(R1,P1),aux_mul(P1, R2),aux_polyplay.
+verify(_) --> simplify_word, polynomial(R1), dot, aux_simp(R1),aux_polyplay.
+verify(_) --> simplify_word, name(R1),dot, storedPoly(R1,P1), aux_simp(P1),aux_polyplay.
+verify(_) --> show_word, polynomial(R1), dot ,aux_show(R1),aux_polyplay.
+verify(_) --> show_word, name(R1), dot,storedPoly(R1,P1) ,aux_show(P1),aux_polyplay.
+verify(_) --> let_word,name(Key),be_word,polynomial(P1), dot,poly2store(Key, P1),aux_polyplay.
+verify(_) --> let_word,name(Key),be_word,polynomial(P1),dot,poly2remove(Key),poly2store(Key,P1),aux_polyplay.
+verify(_) --> forget_word,name(Key), dot, poly2remove(Key),aux_polyplay.
+verify(_) --> unknow_cmd,aux_polyplay.
+
+unknow_cmd(_,_):-writeln('Unknow command...'). 
 
 :-dynamic
     storedPoly/4.
@@ -96,7 +102,7 @@ forget_word --> [forget].
 let_word --> [let].
 be_word --> [be].
 add_word --> [add].
-with_word --> [with].
+to_word --> [to].
 bye_word --> [bye].
 help_word --> [help].
 multiply_word --> [multiply]. 
@@ -117,7 +123,7 @@ aux_simp(R1,_,_) :- write(">"),correct_parentesis(R1, Res1),simpoly(Res1, Res), 
 % aux_show(R1,_,_) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), writeln(" "), polyplay().
 aux_show(R1,_,_) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), writeln(" ").
 %% leaves the program
-leave([],[]) :- writeln("Bye!"),false.
+leave([],[]) :- writeln("Bye!").
 
 %% display a few instructions and calls polyplay again
 help([], []) :- writeln("Available commands (with examples):"),  writeln("add: 'add two times x with three .'"),
