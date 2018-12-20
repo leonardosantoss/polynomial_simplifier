@@ -161,10 +161,11 @@ aux_show(R1,[],[]) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), wr
 leave([],[]) :- writeln("Bye!").
 
 %% display a few instructions and calls polyplay again
-help([], []) :- writeln("Available commands (with examples):"),  writeln("add: 'add two times x with three .'"),
-writeln("multiply: 'multiply two times x with three .'"), 
-writeln("simplify: 'simplify two times x squared plus two times x squared .'"),
-writeln("show: 'show two times x squared .'"),writeln("bye: 'bye .'"), writeln(" ") ,polyplay().
+help([], []) :- writeln("Available commands (with examples):"),  writeln("add: 'add two times x to three'"),
+writeln("multiply: 'multiply two times x by three'"), 
+writeln("simplify: 'simplify two times x squared plus two times x squared'"),
+writeln("show: 'show two times x squared'"),
+,writeln("bye: 'bye'"), writeln(" ") ,polyplay().
 
 
 correct_parentesis(R, Term) :- format(chars(C), "~w", R), custom_format(C, Res), term_string(Term, Res).
