@@ -87,16 +87,35 @@ verify(_) --> add_word, name(R2), to_word, polynomial(R1),as_word,name(Key),stor
 
 verify(_) --> add_word, name(R2), to_word, name(R1),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,_),aux_polyplay.
 verify(_) --> add_word, name(R2), to_word, name(R1),as_word,name(Key),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
-verify(_) --> add_word, name(R2), to_word, name(R1),as_word,name(Key),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,R3),poly2store(Key),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, name(R1),as_word,name(Key),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,R3),poly2store(Key,R3),aux_polyplay.
 
 verify(_) --> bye_word,leave().
 verify(_) --> help_word,help(),aux_polyplay.
-verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),aux_mul(R2, R1),aux_polyplay.
-verify(_) --> multiply_word, name(R2), by_word, digits(R1),storedPoly(R2,P2),aux_mul(P2, R1),aux_polyplay.
-verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1),aux_mul(R1, R2),aux_polyplay.
-verify(_) --> multiply_word, digits(R2), by_word, name(R1),storedPoly(R1,P1),aux_mul(P1, R2),aux_polyplay.
-verify(_) --> simplify_word, polynomial(R1),aux_simp(R1),aux_polyplay.
-verify(_) --> simplify_word, name(R1),storedPoly(R1,P1), aux_simp(P1),aux_polyplay.
+
+verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),aux_mul(R2, R1,_),aux_polyplay.
+verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),as_word,name(Key),aux_mul(R2, R1,R3),poly2store(Key,R3),aux_polyplay.
+verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),as_word,name(Key),aux_mul(R2, R1,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> multiply_word, name(R2), by_word, digits(R1),storedPoly(R2,P2),aux_mul(P2, R1,_),aux_polyplay.
+verify(_) --> multiply_word, name(R2), by_word, digits(R1),as_word,name(Key),storedPoly(R2,P2),aux_mul(P2, R1,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> multiply_word, name(R2), by_word, digits(R1),as_word,name(Key),storedPoly(R2,P2),aux_mul(P2, R1,R3),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1),aux_mul(R1, R2,_),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1),as_word,name(Key),aux_mul(R1, R2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1),as_word,name(Key),aux_mul(R1, R2,R3),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> multiply_word, digits(R2), by_word, name(R1),storedPoly(R1,P1),aux_mul(P1, R2,_),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, name(R1),as_word,name(Key),storedPoly(R1,P1),aux_mul(P1, R2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, name(R1),as_word,name(Key),storedPoly(R1,P1),aux_mul(P1, R2,R3),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> simplify_word, polynomial(R1),aux_simp(R1,_),aux_polyplay.
+verify(_) --> simplify_word, polynomial(R1),as_word,name(Key),aux_simp(R1,R2),poly2remove(Key),poly2store(Key,R2),aux_polyplay.
+verify(_) --> simplify_word, polynomial(R1),as_word,name(Key),aux_simp(R1,R2),poly2store(Key,R2),aux_polyplay.
+
+verify(_) --> simplify_word, name(R1),storedPoly(R1,P1), aux_simp(P1,_),aux_polyplay.
+verify(_) --> simplify_word, name(R1),as_word,name(Key),storedPoly(R1,P1), aux_simp(P1,R2),poly2remove(Key),poly2store(Key,R2),aux_polyplay.
+verify(_) --> simplify_word, name(R1),as_word,name(Key),storedPoly(R1,P1), aux_simp(P1,R2),poly2store(Key,R2),aux_polyplay.
+
 verify(_) --> show_word, polynomial(R1),aux_show(R1),aux_polyplay.
 verify(_) --> show_word, name(R1),storedPoly(R1,P1) ,aux_show(P1),aux_polyplay.
 verify(_) --> let_word,name(Key),be_word,polynomial(P1),poly2store(Key, P1),aux_polyplay.
@@ -150,10 +169,10 @@ dot --> [.].
 aux_add(R1,R2,R3,[],[]) :- write(">"),correct_parentesis(R1, Res1), correct_parentesis(R2, Res2),addpoly(Res1,Res2,R3), writeln(R3), writeln(" ").
 %% Multiplies a polynomial by a Scalar
 % aux_mul(R1,R2,_,_) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" "), polyplay().
-aux_mul(R1,R2,[],[]) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" ").
+aux_mul(R1,R2,Res,[],[]) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" ").
 %% simplifies given expression and calls polyplay again
 % aux_simp(R1,_,_) :- write(">"),correct_parentesis(R1, Res1),simpoly(Res1, Res), writeln(Res), writeln(" ") ,polyplay().
-aux_simp(R1,[],[]) :- write(">"),correct_parentesis(R1, Res1),simpoly(Res1, Res), writeln(Res), writeln(" ").
+aux_simp(R1,Res,[],[]) :- write(">"),correct_parentesis(R1, Res1),simpoly(Res1, Res), writeln(Res), writeln(" ").
 %% shows given polynomial
 % aux_show(R1,_,_) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), writeln(" "), polyplay().
 aux_show(R1,[],[]) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), writeln(" ").
@@ -161,11 +180,17 @@ aux_show(R1,[],[]) :- write(">"),correct_parentesis(R1, Res1) ,writeln(Res1), wr
 leave([],[]) :- writeln("Bye!").
 
 %% display a few instructions and calls polyplay again
-help([], []) :- writeln("Available commands (with examples):"),  writeln("add: 'add two times x to three'"),
-writeln("multiply: 'multiply two times x by three'"), 
-writeln("simplify: 'simplify two times x squared plus two times x squared'"),
-writeln("show: 'show two times x squared'"),
-,writeln("bye: 'bye'"), writeln(" ") ,polyplay().
+help([], []) :- writeln("Available commands (with examples):"),
+    writeln("                add: 'add two times x to three'"),
+    writeln("           multiply: 'multiply two times x by three'"), 
+    writeln("           simplify: 'simplify two times x squared plus two times x squared'"),
+    writeln("               show: 'show two times x squared'"),
+    writeln("   store polynomial: 'let p1 be x plus y'"),
+    writeln("  forget polynomial: 'forget p1'"),
+    writeln("operation and store: 'add p1 to p2 as p3'"),    
+    writeln("                bye: 'bye'"),
+    writeln(" ").
+    % aux_polyplay([],[]).
 
 
 correct_parentesis(R, Term) :- format(chars(C), "~w", R), custom_format(C, Res), term_string(Term, Res).
