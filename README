@@ -1,5 +1,50 @@
-Read me for the prolog class first assignment
+Read me for the prolog class second assignment
 Done by Leonardo Santos (201703489) and Lucas de Paula (201608440)
+
+
+The file that contains all the predicates is called symbolic_dcg.pl
+
+The code can be run using swipl, and compiled with the command ["symbolic_dcg.pl"].
+
+All the predicates asked in the assignment were implemented, and here follow a few usage examples of them.
+
+To access the demo, run the predicate 'polyplay.' . A prompt will be displayed, and help can be accessed by typing 'help'.
+
+Available commands with examples
+    1. add: 
+        ?-add two times x to three
+        >2*x+3
+
+    2. Multiply a polynomial by a scalar: 
+        ?- multiply two times x by three 
+        >6*x
+
+    3. Simplify a polynomial: 
+        ?- simplify two times x squared plus two times x squared
+        >4*x^2
+
+    4. Show a polynomial: 
+        ?- show two times x squared
+        >2*x^2
+
+    5. Store a polynomial: 
+        ?-let p1 be x plus y
+
+    6. Forget a polynomial:
+        ?-forget p1
+
+    7. Operation and storing the result: 
+        ?-add p1 to p2 as p3 
+        >2*x+2*y
+
+    8. Leave the program:
+        ?-bye
+
+
+
+
+
+README FOR THE FIRST ASSIGNMENT -------------
 
 The file that contains all the predicates is called sim.pl
 
