@@ -65,29 +65,63 @@ aux_text2poly([], []).
 aux_text2poly([H|T], [X|T1]):-atom_string(X,H),aux_text2poly(T, T1).
 
 
-polyplay:- writeln("Write your operation over a polynomial: ('help' to display instructions)"),writeln("Every query must end with a space and '.'"),aux_polyplay(_,_).
-aux_polyplay(_,_):-read_string(user_input, "\n", "\r", End, String), 
-split_string(String, " ", "", List), aux_text2poly(List, R1), verify(Res,R1,[]).
+polyplay:- writeln("Write your operation over a polynomial: ('help' to display instructions)"),writeln("Every query must end with a ENTER"),aux_polyplay(_,_).
+aux_polyplay([],[]):-
+    read_string(user_input, "\n", "\r", _, String), 
+    split_string(String, " ", "", List), 
+    aux_text2poly(List, R1), 
+    verify(_,R1,[]).
 
 %% verify user input and does the correct operation
-verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),dot ,aux_add(R1, R2),aux_polyplay.
-verify(_) --> add_word, polynomial(R2), to_word, name(R1),dot,storedPoly(R1,P1),aux_add(P1, R2),aux_polyplay.
-verify(_) --> add_word, name(R2), to_word, polynomial(R1),dot,storedPoly(R2,P2),aux_add(R1, P2),aux_polyplay.
-verify(_) --> add_word, name(R2), to_word, name(R1),dot,storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2),aux_polyplay.
-verify(_) --> bye_word, dot,leave().
-verify(_) --> help_word, dot,help(),aux_polyplay.
-verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),dot ,aux_mul(R2, R1),aux_polyplay.
-verify(_) --> multiply_word, name(R2), by_word, digits(R1),dot,storedPoly(R2,P2),aux_mul(P2, R1),aux_polyplay.
-verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1), dot,aux_mul(R1, R2),aux_polyplay.
-verify(_) --> multiply_word, digits(R2), by_word, name(R1),dot, storedPoly(R1,P1),aux_mul(P1, R2),aux_polyplay.
-verify(_) --> simplify_word, polynomial(R1), dot, aux_simp(R1),aux_polyplay.
-verify(_) --> simplify_word, name(R1),dot, storedPoly(R1,P1), aux_simp(P1),aux_polyplay.
-verify(_) --> show_word, polynomial(R1), dot ,aux_show(R1),aux_polyplay.
-verify(_) --> show_word, name(R1), dot,storedPoly(R1,P1) ,aux_show(P1),aux_polyplay.
-verify(_) --> let_word,name(Key),be_word,polynomial(P1), dot,poly2store(Key, P1),aux_polyplay.
-verify(_) --> let_word,name(Key),be_word,polynomial(P1),dot,poly2remove(Key),poly2store(Key,P1),aux_polyplay.
-verify(_) --> forget_word,name(Key), dot, poly2remove(Key),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),aux_add(R1, R2,_),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),as_word,name(Key),aux_add(R1,R2,R3),poly2remove(Key),poly2store(Key, R3),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),as_word,name(Key),aux_add(R1,R2,R3),poly2store(Key, R3),aux_polyplay.
+
+verify(_) --> add_word, polynomial(R2), to_word, name(R1),storedPoly(R1,P1),aux_add(P1, R2,_),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, name(R1),as_word,name(Key),storedPoly(R1,P1),aux_add(P1, R2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> add_word, polynomial(R2), to_word, name(R1),as_word,name(Key),storedPoly(R1,P1),aux_add(P1, R2,R3),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> add_word, name(R2), to_word, polynomial(R1),storedPoly(R2,P2),aux_add(R1, P2,_),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, polynomial(R1),as_word,name(Key),storedPoly(R2,P2),aux_add(R1, P2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, polynomial(R1),as_word,name(Key),storedPoly(R2,P2),aux_add(R1, P2,R3),poly2store(Key,R3),aux_polyplay.
+
+verify(_) --> add_word, name(R2), to_word, name(R1),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,_),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, name(R1),as_word,name(Key),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,R3),poly2remove(Key),poly2store(Key,R3),aux_polyplay.
+verify(_) --> add_word, name(R2), to_word, name(R1),as_word,name(Key),storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2,R3),poly2store(Key),aux_polyplay.
+
+verify(_) --> bye_word,leave().
+verify(_) --> help_word,help(),aux_polyplay.
+verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),aux_mul(R2, R1),aux_polyplay.
+verify(_) --> multiply_word, name(R2), by_word, digits(R1),storedPoly(R2,P2),aux_mul(P2, R1),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1),aux_mul(R1, R2),aux_polyplay.
+verify(_) --> multiply_word, digits(R2), by_word, name(R1),storedPoly(R1,P1),aux_mul(P1, R2),aux_polyplay.
+verify(_) --> simplify_word, polynomial(R1),aux_simp(R1),aux_polyplay.
+verify(_) --> simplify_word, name(R1),storedPoly(R1,P1), aux_simp(P1),aux_polyplay.
+verify(_) --> show_word, polynomial(R1),aux_show(R1),aux_polyplay.
+verify(_) --> show_word, name(R1),storedPoly(R1,P1) ,aux_show(P1),aux_polyplay.
+verify(_) --> let_word,name(Key),be_word,polynomial(P1),poly2store(Key, P1),aux_polyplay.
+verify(_) --> let_word,name(Key),be_word,polynomial(P1),poly2remove(Key),poly2store(Key,P1),aux_polyplay.
+verify(_) --> forget_word,name(Key),poly2remove(Key),aux_polyplay.
 verify(_) --> unknow_cmd,aux_polyplay.
+
+% verify(_) --> add_word, polynomial(R2), to_word, polynomial(R1),dot ,aux_add(R1, R2),aux_polyplay.
+% verify(_) --> add_word, polynomial(R2), to_word, name(R1),dot,storedPoly(R1,P1),aux_add(P1, R2),aux_polyplay.
+% verify(_) --> add_word, name(R2), to_word, polynomial(R1),dot,storedPoly(R2,P2),aux_add(R1, P2),aux_polyplay.
+% verify(_) --> add_word, name(R2), to_word, name(R1),dot,storedPoly(R2,P2),storedPoly(R1,P1),aux_add(P1, P2),aux_polyplay.
+% verify(_) --> bye_word, dot,leave().
+% verify(_) --> help_word, dot,help(),aux_polyplay.
+% verify(_) --> multiply_word, polynomial(R2), by_word, digits(R1),dot ,aux_mul(R2, R1),aux_polyplay.
+% verify(_) --> multiply_word, name(R2), by_word, digits(R1),dot,storedPoly(R2,P2),aux_mul(P2, R1),aux_polyplay.
+% verify(_) --> multiply_word, digits(R2), by_word, polynomial(R1), dot,aux_mul(R1, R2),aux_polyplay.
+% verify(_) --> multiply_word, digits(R2), by_word, name(R1),dot, storedPoly(R1,P1),aux_mul(P1, R2),aux_polyplay.
+% verify(_) --> simplify_word, polynomial(R1), dot, aux_simp(R1),aux_polyplay.
+% verify(_) --> simplify_word, name(R1),dot, storedPoly(R1,P1), aux_simp(P1),aux_polyplay.
+% verify(_) --> show_word, polynomial(R1), dot ,aux_show(R1),aux_polyplay.
+% verify(_) --> show_word, name(R1), dot,storedPoly(R1,P1) ,aux_show(P1),aux_polyplay.
+% verify(_) --> let_word,name(Key),be_word,polynomial(P1),dot,poly2store(Key, P1),aux_polyplay.
+% verify(_) --> let_word,name(Key),be_word,polynomial(P1),dot,poly2remove(Key),poly2store(Key,P1),aux_polyplay.
+% verify(_) --> forget_word,name(Key), dot, poly2remove(Key),aux_polyplay.
+% verify(_) --> unknow_cmd,aux_polyplay.
 
 unknow_cmd(_,_):-writeln('Unknow command...'). 
 
@@ -95,10 +129,11 @@ unknow_cmd(_,_):-writeln('Unknow command...').
     storedPoly/4.
 
 poly2store(Name,Poly,[],[]):-not(storedPoly(Name,_,_,_)),assert(storedPoly(Name,Poly,[],[])).
-poly2remove(Name, _, _):-retract(storedPoly(Name,_,_,_)).
+poly2remove(Name, [], []):-retract(storedPoly(Name,_,_,_)).
 name(P) --> [P].
 
 forget_word --> [forget].
+as_word --> [as].
 let_word --> [let].
 be_word --> [be].
 add_word --> [add].
@@ -112,7 +147,7 @@ by_word --> [by].
 dot --> [.].
 %% Sums two polynomials, prints the result and calls polyplay again, so the program can continue
 % aux_add(R1,R2,_,_) :- write(">"),correct_parentesis(R1, Res1), correct_parentesis(R2, Res2),addpoly(Res1,Res2,R3), writeln(R3), writeln(" ") ,polyplay().
-aux_add(R1,R2,_,_) :- write(">"),correct_parentesis(R1, Res1), correct_parentesis(R2, Res2),addpoly(Res1,Res2,R3), writeln(R3), writeln(" ").
+aux_add(R1,R2,R3,[],[]) :- write(">"),correct_parentesis(R1, Res1), correct_parentesis(R2, Res2),addpoly(Res1,Res2,R3), writeln(R3), writeln(" ").
 %% Multiplies a polynomial by a Scalar
 % aux_mul(R1,R2,_,_) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" "), polyplay().
 aux_mul(R1,R2,_,_) :- write(">"), correct_parentesis(R1, Res1),scalepoly(Res1, R2, Res), writeln(Res),writeln(" ").
